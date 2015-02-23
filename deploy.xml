@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="deploy" default="start:deployment">
+
+  <!-- ## Properties -->
+
+  <property name="deploy.environment"  value="" />
+  <property name="deploy.ssh.host"     value="" />
+  <property name="deploy.ssh.port"     value="" />
+  <property name="deploy.ssh.path"     value="" />
+  <property name="deploy.ssh.username" value="" />
+  <property name="deploy.ssh.password" value="" />
+  <property name="deploy.source.dir"   value="" />
+
+  <!-- ## Main targets -->
+
+  <target name="start:deployment"
+          description="Deploys the current working copy to a remote host using FileSync."
+          depends="init:deploy, create-dirs:deploy, sync-files:deploy, link-filesystem:deploy, clean:deploy">
+    <!-- Give the user some feedback. -->
+    <echo msg="Project has been deployed successfully!" />
+  </target>
+
+  <!-- ## Helper targets -->
+
+  <target name="init:deploy"
+          description="Sets up many of the common resources used throughout the build."
+          depends="load-properties:deploy"
+          unless="deploy.initialized">
+    <!-- Give the user some feedback. -->
+    <echo msg="Deployment has been successfully initialised!" />
+
+    <!-- Set property to prevent target from being executed multiple times. -->
+    <property name="deploy.initialized" value="true" />
+  </target>
+
+  <target name="load-properties:deploy"
+          description="Loads a set of project specific properties."
+          unless="deploy.properties.loaded">
+    <fail unless="deploy.environment"
+          message="Please provide a deploy.environment property." />
+
+    <!-- Load the default properties. -->
+    <property file="deploy.${deploy.environment}.properties" override="true" />
+
+    <fail unless="deploy.ssh.host"
+          message="Please provide a deploy.ssh.host property." />
+    <fail unless="deploy.ssh.port"
+          message="Please provide a deploy.ssh.port property." />
+    <fail unless="deploy.ssh.path"
+          message="Please provide a deploy.ssh.path property." />
+    <fail unless="deploy.ssh.username"
+          message="Please provide a deploy.ssh.username property." />
+    <fail unless="deploy.ssh.password"
+          message="Please provide a deploy.ssh.password property." />
+    <fail unless="deploy.source.dir"
+          message="Please provide a deploy.source.dir property." />
+
+    <!-- Deployment timestamp. -->
+    <tstamp>
+      <format property="deploy.time" pattern="%Y%m%d%H%M%S" />
+    </tstamp>
+
+    <!-- Directories. -->
+    <property name="deploy.currentdir"  value="${deploy.ssh.path}/current" />
+    <property name="deploy.releasesdir" value="${deploy.ssh.path}/releases" />
+    <property name="deploy.releasedir"  value="${deploy.releasesdir}/${deploy.time}" />
+    <property name="deploy.shareddir"   value="${deploy.ssh.path}/shared" />
+    <property name="deploy.sitedir"     value="${deploy.releasedir}/sites/default" />
+
+    <!-- Give the user some feedback. -->
+    <echo msg="Deployment properties have been successfully loaded!" />
+
+    <!-- Set property to prevent target from being executed multiple times. -->
+    <property name="deploy.properties.loaded" value="true" />
+  </target>
+
+  <target name="create-dirs:deploy"
+          description="Creates all the necessary directories for the deployment to work."
+          depends="load-properties:deploy">
+    <!-- Create a new release directory. -->
+    <echo msg="Creating new release folder..." />
+    <phingcall target="ssh-exec:deploy">
+      <property name="command" value="mkdir -p ${deploy.releasedir}" />
+    </phingcall>
+
+    <!-- Create a shared directory. -->
+    <echo msg="Creating shared folder..." />
+    <phingcall target="ssh-exec:deploy">
+      <property name="command" value="mkdir -p ${deploy.shareddir}" />
+    </phingcall>
+
+    <!-- Give the user some feedback. -->
+    <echo msg="Deployment directories have been successfully created!" />
+  </target>
+
+  <target name="sync-files:deploy"
+          description="Syncs files from local directory to remote server."
+          depends="load-properties:deploy">
+    <!-- Copy the content of the current release directory into the new release
+         directory to avoid re-uploading everything from scratch. -->
+    <echo msg="Copying files from current release into new release..." />
+    <phingcall target="ssh-exec:deploy">
+      <property name="command" value="rsync -a ${deploy.currentdir}/ ${deploy.releasedir}/" />
+    </phingcall>
+
+    <!-- Sync local project directory to remote new release directory. -->
+    <echo msg="Syncing files and directories to remote..." />
+    <filesync
+      sourceDir="${deploy.source.dir}/"
+      destinationDir="${deploy.ssh.username}@${deploy.ssh.host}:${deploy.releasedir}"
+      excludeFile=".deployignore"
+      options="-e 'sshpass -p ${deploy.ssh.password} ssh -p ${deploy.ssh.port}' -rpKzl"
+      delete="true" />
+
+    <!-- Give the user some feedback. -->
+    <echo msg="Deployment files have been successfully synced to remote!" />
+  </target>
+
+  <target name="link-filesystem:deploy"
+          description="Recreate the required Drupal symlinks to files and directories."
+          depends="load-properties:deploy">
+    <!-- Make sure that the site directory exists before creating symlinks. -->
+    <echo msg="Making sure that the site directory exists..." />
+    <phingcall target="ssh-exec:deploy">
+      <property name="command" value="mkdir -p ${deploy.releasedir}/sites/default" />
+    </phingcall>
+
+    <!-- Symlink the .htaccess file. -->
+    <echo msg="Creating a symlink to .htaccess file..." />
+    <phingcall target="ssh-exec:deploy">
+      <property name="command" value="ln -nfs ${deploy.releasedir}/.htaccess.${deploy.environment} ${deploy.releasedir}/.htaccess" />
+    </phingcall>
+
+    <!-- Symlink the settings.php file. -->
+    <echo msg="Creating a symlink to settings.php file..." />
+    <phingcall target="ssh-exec:deploy">
+      <property name="command" value="ln -nfs ${deploy.sitedir}/settings.php.${deploy.environment} ${deploy.sitedir}/settings.php" />
+    </phingcall>
+
+    <!-- Symlink the files directory. -->
+    <echo msg="Creating a symlink to files directory..." />
+    <phingcall target="ssh-exec:deploy">
+      <property name="command" value="ln -nfs ${deploy.shareddir}/files ${deploy.sitedir}/files" />
+    </phingcall>
+
+    <!-- Symlink the current to latest release. -->
+    <echo msg="Creating a symlink to latest release..." />
+    <phingcall target="ssh-exec:deploy">
+      <property name="command" value="ln -nfs ${deploy.releasedir} ${deploy.currentdir}" />
+    </phingcall>
+
+    <!-- Give the user some feedback. -->
+    <echo msg="Symlinks have been successfully created!" />
+  </target>
+
+  <target name="clean:deploy"
+          description="Deletes old releases to keep the remote clean."
+          depends="load-properties:deploy">
+    <!-- Command to change to releases directory. -->
+    <property name="command.cd" value="cd ${deploy.releasesdir}" />
+
+    <!-- Command to remove old releases. -->
+    <property name="command.rm" value="(ls -t| head -n 5; ls) | sort | uniq -u | xargs rm -r" />
+
+    <!-- Remove old releases. -->
+    <phingcall target="ssh-exec:deploy">
+      <property name="command" value="${command.cd}; ${command.rm}" />
+    </phingcall>
+
+    <!-- Give the user some feedback. -->
+    <echo msg="Old releases have been successfully removed!" />
+  </target>
+
+  <target name="ssh-exec:deploy"
+          description="Executes commands on remote host via SSH."
+          depends="load-properties:deploy">
+    <fail unless="command"
+          message="Please provide a command property." />
+    <ssh
+      host="${deploy.ssh.host}"
+      port="${deploy.ssh.port}"
+      username="${deploy.ssh.username}"
+      password="${deploy.ssh.password}"
+      command="${command}" />
+  </target>
+
+</project>
