@@ -1,6 +1,6 @@
 {
     "name": "jorgegc/phing-drupal-deploy",
-    "description": "A library of Drupal specific targets for Phing.",
+    "description": "A collection of targets for deploying Drupal projects.",
     "type": "library",
     "keywords": ["phing"],
     "license": "GPL-2.0+"

@@ -3,7 +3,7 @@ Phing Drupal Deploy
 
 ## Overview
 
-A library of Drupal specific targets for Phing.
+A collection of targets for deploying Drupal projects.
 
 ## Installation
 
