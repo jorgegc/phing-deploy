@@ -10,6 +10,7 @@
   <property name="deploy.ssh.username" value="" />
   <property name="deploy.ssh.password" value="" />
   <property name="deploy.source.dir"   value="" />
+  <property name="deploy.strategy"     value="" />
 
   <!-- ## Main targets -->
 
@@ -51,16 +52,31 @@
           message="Please provide a deploy.ssh.password property." />
     <fail unless="deploy.source.dir"
           message="Please provide a deploy.source.dir property." />
+    <fail unless="deploy.strategy"
+          message="Please provide a deploy.strategy property." />
 
-    <tstamp>
-      <format property="deploy.time" pattern="%Y%m%d%H%M%S" />
-    </tstamp>
+    <if>
+      <equals arg1="${deploy.strategy}" arg2="default" />
+      <then>
+        <property name="deploy.releasedir"  value="${deploy.ssh.path}" />
+        <property name="deploy.sitedir"     value="${deploy.releasedir}/sites/default" />
+      </then>
+    </if>
 
-    <property name="deploy.currentdir"  value="${deploy.ssh.path}/current" />
-    <property name="deploy.releasesdir" value="${deploy.ssh.path}/releases" />
-    <property name="deploy.releasedir"  value="${deploy.releasesdir}/${deploy.time}" />
-    <property name="deploy.shareddir"   value="${deploy.ssh.path}/shared" />
-    <property name="deploy.sitedir"     value="${deploy.releasedir}/sites/default" />
+    <if>
+      <equals arg1="${deploy.strategy}" arg2="release" />
+      <then>
+        <tstamp>
+          <format property="deploy.time" pattern="%Y%m%d%H%M%S" />
+        </tstamp>
+
+        <property name="deploy.currentdir"  value="${deploy.ssh.path}/current" />
+        <property name="deploy.releasesdir" value="${deploy.ssh.path}/releases" />
+        <property name="deploy.releasedir"  value="${deploy.releasesdir}/${deploy.time}" />
+        <property name="deploy.shareddir"   value="${deploy.ssh.path}/shared" />
+        <property name="deploy.sitedir"     value="${deploy.releasedir}/sites/default" />
+      </then>
+    </if>
 
     <echo msg="Deployment properties have been successfully loaded!" />
     <property name="deploy.properties.loaded" value="true" />
@@ -70,15 +86,20 @@
           description="Creates all the necessary directories for the deployment to work."
           depends="load-properties:deploy"
           hidden="true">
-    <echo msg="Creating new release folder..." />
-    <phingcall target="ssh-exec:deploy">
-      <property name="command" value="mkdir -p ${deploy.releasedir}" />
-    </phingcall>
+    <if>
+      <equals arg1="${deploy.strategy}" arg2="release" />
+      <then>
+        <echo msg="Creating a new release folder..." />
+        <phingcall target="ssh-exec:deploy">
+          <property name="command" value="mkdir -p ${deploy.releasedir}" />
+        </phingcall>
 
-    <echo msg="Creating shared folder..." />
-    <phingcall target="ssh-exec:deploy">
-      <property name="command" value="mkdir -p ${deploy.shareddir}" />
-    </phingcall>
+        <echo msg="Creating shared folder..." />
+        <phingcall target="ssh-exec:deploy">
+          <property name="command" value="mkdir -p ${deploy.shareddir}" />
+        </phingcall>
+      </then>
+    </if>
 
     <echo msg="Deployment directories have been successfully created!" />
   </target>
@@ -87,10 +108,15 @@
           description="Syncs files from local directory to remote server."
           depends="load-properties:deploy"
           hidden="true">
-    <echo msg="Copying files from current release into new release..." />
-    <phingcall target="ssh-exec:deploy">
-      <property name="command" value="rsync -a ${deploy.currentdir}/ ${deploy.releasedir}/" />
-    </phingcall>
+    <if>
+      <equals arg1="${deploy.strategy}" arg2="release" />
+      <then>
+        <echo msg="Copying files from current release into new release..." />
+        <phingcall target="ssh-exec:deploy">
+          <property name="command" value="rsync -a ${deploy.currentdir}/ ${deploy.releasedir}/" />
+        </phingcall>
+      </then>
+    </if>
 
     <echo msg="Syncing files and directories to remote..." />
     <filesync
@@ -122,15 +148,20 @@
       <property name="command" value="ln -nfs ${deploy.sitedir}/settings.${deploy.environment}.php ${deploy.sitedir}/settings.php" />
     </phingcall>
 
-    <echo msg="Creating a symlink to files directory..." />
-    <phingcall target="ssh-exec:deploy">
-      <property name="command" value="ln -nfs ${deploy.shareddir}/files ${deploy.sitedir}/files" />
-    </phingcall>
+    <if>
+      <equals arg1="${deploy.strategy}" arg2="release" />
+      <then>
+        <echo msg="Creating a symlink to files directory..." />
+        <phingcall target="ssh-exec:deploy">
+          <property name="command" value="ln -nfs ${deploy.shareddir}/files ${deploy.sitedir}/files" />
+        </phingcall>
 
-    <echo msg="Creating a symlink to latest release..." />
-    <phingcall target="ssh-exec:deploy">
-      <property name="command" value="ln -nfs ${deploy.releasedir} ${deploy.currentdir}" />
-    </phingcall>
+        <echo msg="Creating a symlink to latest release..." />
+        <phingcall target="ssh-exec:deploy">
+          <property name="command" value="ln -nfs ${deploy.releasedir} ${deploy.currentdir}" />
+        </phingcall>
+      </then>
+    </if>
 
     <echo msg="Symlinks have been successfully created!" />
   </target>
@@ -139,13 +170,18 @@
           description="Deletes old releases to keep the remote clean."
           depends="load-properties:deploy"
           hidden="true">
-    <phingcall target="ssh-exec:deploy">
-      <property name="command.cd" value="cd ${deploy.releasesdir}" />
-      <property name="command.rm" value="(ls -t| head -n 5; ls) | sort | uniq -u | xargs rm -r" />
-      <property name="command" value="${command.cd}; ${command.rm}" />
-    </phingcall>
+    <if>
+      <equals arg1="${deploy.strategy}" arg2="release" />
+      <then>
+        <phingcall target="ssh-exec:deploy">
+          <property name="command.cd" value="cd ${deploy.releasesdir}" />
+          <property name="command.rm" value="(ls -t| head -n 5; ls) | sort | uniq -u | xargs rm -r" />
+          <property name="command" value="${command.cd}; ${command.rm}" />
+        </phingcall>
 
-    <echo msg="Old releases have been successfully removed!" />
+        <echo msg="Old releases have been successfully removed!" />
+      </then>
+    </if>
   </target>
 
   <target name="ssh-exec:deploy"
