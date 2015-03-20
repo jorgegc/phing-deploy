@@ -4,14 +4,12 @@
 
   <!-- ## Properties -->
 
-  <property name="deploy.environment"  value="" />
-  <property name="deploy.sourcedir"    value="${project.basedir}/docroot" />
-
-  <property name="deploy.ssh.host"     value="" />
-  <property name="deploy.ssh.password" value="" />
-  <property name="deploy.ssh.path"     value="" />
-  <property name="deploy.ssh.port"     value="" />
-  <property name="deploy.ssh.username" value="" />
+  <property name="deploy.local.path"      value="${project.basedir}/docroot" />
+  <property name="deploy.remote.host"     value="${env.DEPLOY_SSH_HOST}" />
+  <property name="deploy.remote.password" value="${env.DEPLOY_SSH_PASSWORD}" />
+  <property name="deploy.remote.path"     value="${env.DEPLOY_SSH_PATH}" />
+  <property name="deploy.remote.port"     value="${env.DEPLOY_SSH_PORT}" />
+  <property name="deploy.remote.username" value="${env.DEPLOY_SSH_USERNAME}" />
 
   <!-- ## Main targets -->
 
@@ -25,24 +23,18 @@
           description="Setup steps for deploy build tasks."
           unless="deploy.initialized"
           hidden="true">
-    <fail unless="deploy.environment"
-          message="Please provide a deploy.environment property." />
-
-    <property file="deploy.${deploy.environment}.properties" override="true" />
-
-    <fail unless="deploy.sourcedir"
-          message="Please provide a deploy.sourcedir property." />
-    <fail unless="deploy.ssh.host"
-          message="Please provide a deploy.ssh.host property." />
-    <fail unless="deploy.ssh.port"
-          message="Please provide a deploy.ssh.port property." />
-    <fail unless="deploy.ssh.path"
-          message="Please provide a deploy.ssh.path property." />
-    <fail unless="deploy.ssh.username"
-          message="Please provide a deploy.ssh.username property." />
-    <fail unless="deploy.ssh.password"
-          message="Please provide a deploy.ssh.password property." />
-
+    <fail unless="deploy.local.path"
+          message="Please provide a deploy.local.path property." />
+    <fail unless="deploy.remote.host"
+          message="Please provide a deploy.remote.host property." />
+    <fail unless="deploy.remote.port"
+          message="Please provide a deploy.remote.port property." />
+    <fail unless="deploy.remote.path"
+          message="Please provide a deploy.remote.path property." />
+    <fail unless="deploy.remote.username"
+          message="Please provide a deploy.remote.username property." />
+    <fail unless="deploy.remote.password"
+          message="Please provide a deploy.remote.password property." />
     <property name="deploy.initialized" value="true" />
   </target>
 
@@ -50,10 +42,10 @@
           description="Syncs files from local directory to remote server."
           depends="deploy:init"
           hidden="true">
-    <filesync sourceDir="${deploy.sourcedir}/"
-              destinationDir="${deploy.ssh.username}@${deploy.ssh.host}:${deploy.ssh.path}"
+    <filesync sourceDir="${deploy.local.path}/"
+              destinationDir="${deploy.remote.username}@${deploy.remote.host}:${deploy.remote.path}"
               excludeFile=".deployignore"
-              options="-e 'sshpass -p ${deploy.ssh.password} ssh -p ${deploy.ssh.port}' -rpKzl"
+              options="-e 'sshpass -p ${deploy.remote.password} ssh -p ${deploy.remote.port}' -rpKzl"
               delete="true" />
   </target>
 
@@ -63,10 +55,10 @@
           hidden="true">
     <fail unless="command"
           message="Please provide a command property." />
-    <ssh host="${deploy.ssh.host}"
-         port="${deploy.ssh.port}"
-         username="${deploy.ssh.username}"
-         password="${deploy.ssh.password}"
+    <ssh host="${deploy.remote.host}"
+         port="${deploy.remote.port}"
+         username="${deploy.remote.username}"
+         password="${deploy.remote.password}"
          command="${command}" />
   </target>
 
