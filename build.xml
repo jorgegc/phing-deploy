@@ -6,7 +6,6 @@
 
   <property name="deploy.local.path"      value="${project.basedir}/docroot" />
   <property name="deploy.remote.host"     value="${env.DEPLOY_SSH_HOST}" />
-  <property name="deploy.remote.password" value="${env.DEPLOY_SSH_PASSWORD}" />
   <property name="deploy.remote.path"     value="${env.DEPLOY_SSH_PATH}" />
   <property name="deploy.remote.port"     value="${env.DEPLOY_SSH_PORT}" />
   <property name="deploy.remote.username" value="${env.DEPLOY_SSH_USERNAME}" />
@@ -33,8 +32,6 @@
           message="Please provide a deploy.remote.path property." />
     <fail unless="deploy.remote.username"
           message="Please provide a deploy.remote.username property." />
-    <fail unless="deploy.remote.password"
-          message="Please provide a deploy.remote.password property." />
     <property name="deploy.initialized" value="true" />
   </target>
 
@@ -42,11 +39,10 @@
           description="Syncs files from local directory to remote server."
           depends="deploy:init"
           hidden="true">
-    <filesync sourceDir="${deploy.local.path}/"
-              destinationDir="${deploy.remote.username}@${deploy.remote.host}:${deploy.remote.path}"
-              excludeFile=".deployignore"
-              options="-e 'sshpass -p ${deploy.remote.password} ssh -p ${deploy.remote.port}' -rpKzl"
-              delete="true" />
+    <exec command="rsync -avz --force --delete --exclude-from '.deployignore' -e 'ssh -p ${deploy.remote.port}' ${deploy.local.path}/ ${deploy.remote.username}@${deploy.remote.host}:${deploy.remote.path}"
+          passthru="true"
+          logoutput="true"
+          checkreturn="true" />
   </target>
 
   <target name="deploy:ssh-exec"
@@ -58,7 +54,6 @@
     <ssh host="${deploy.remote.host}"
          port="${deploy.remote.port}"
          username="${deploy.remote.username}"
-         password="${deploy.remote.password}"
          command="${command}" />
   </target>
 
