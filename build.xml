@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="deploy" default="deploy:start">
+<project name="deploy" default="deploy:sync-files">
 
   <!-- ## Properties -->
 
@@ -10,13 +10,7 @@
   <property name="deploy.remote.port"     value="${env.DEPLOY_SSH_PORT}" />
   <property name="deploy.remote.username" value="${env.DEPLOY_SSH_USERNAME}" />
 
-  <!-- ## Main targets -->
-
-  <target name="deploy:start"
-          description="Deploys the current working copy to a remote host using FileSync."
-          depends="deploy:init, deploy:sync-files" />
-
-  <!-- ## Helper targets -->
+  <!-- ## Targets -->
 
   <target name="deploy:init"
           description="Setup steps for deploy build tasks."
@@ -43,18 +37,6 @@
           passthru="true"
           logoutput="true"
           checkreturn="true" />
-  </target>
-
-  <target name="deploy:ssh-exec"
-          description="Executes commands on remote host via SSH."
-          depends="deploy:init"
-          hidden="true">
-    <fail unless="command"
-          message="Please provide a command property." />
-    <ssh host="${deploy.remote.host}"
-         port="${deploy.remote.port}"
-         username="${deploy.remote.username}"
-         command="${command}" />
   </target>
 
 </project>
