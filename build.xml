@@ -5,16 +5,15 @@
   <!-- ## Properties -->
 
   <property name="deploy.local.path"      value="${project.basedir}/docroot" />
-  <property name="deploy.remote.host"     value="${env.DEPLOY_SSH_HOST}" />
-  <property name="deploy.remote.path"     value="${env.DEPLOY_SSH_PATH}" />
-  <property name="deploy.remote.port"     value="${env.DEPLOY_SSH_PORT}" />
-  <property name="deploy.remote.username" value="${env.DEPLOY_SSH_USERNAME}" />
+  <property name="deploy.remote.host"     value="" />
+  <property name="deploy.remote.path"     value="" />
+  <property name="deploy.remote.port"     value="" />
+  <property name="deploy.remote.username" value="" />
 
   <!-- ## Targets -->
 
-  <target name="deploy:init"
-          description="Setup steps for deploy build tasks."
-          unless="deploy.initialized"
+  <target name="deploy:sync-files"
+          description="Syncs files from local directory to remote server."
           hidden="true">
     <fail unless="deploy.local.path"
           message="Please provide a deploy.local.path property." />
@@ -26,14 +25,12 @@
           message="Please provide a deploy.remote.path property." />
     <fail unless="deploy.remote.username"
           message="Please provide a deploy.remote.username property." />
-    <property name="deploy.initialized" value="true" />
-  </target>
 
-  <target name="deploy:sync-files"
-          description="Syncs files from local directory to remote server."
-          depends="deploy:init"
-          hidden="true">
-    <exec command="rsync -avz --force --delete --exclude-from '.deployignore' -e 'ssh -p ${deploy.remote.port}' ${deploy.local.path}/ ${deploy.remote.username}@${deploy.remote.host}:${deploy.remote.path}"
+    <property name="deploy.sync.options" value="-avz --force --delete --exclude-from '.deployignore' -e 'ssh -p ${deploy.remote.port}'" />
+    <property name="deploy.sync.local"   value="${deploy.local.path}/" />
+    <property name="deploy.sync.remote"  value="${deploy.remote.username}@${deploy.remote.host}:${deploy.remote.path}" />
+
+    <exec command="rsync ${deploy.sync.options} ${deploy.sync.local} ${deploy.sync.remote}"
           passthru="true"
           logoutput="true"
           checkreturn="true" />
