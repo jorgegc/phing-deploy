@@ -2,6 +2,8 @@
     "name": "jorgegc/phing-deploy",
     "description": "A collection of targets for deploying websites.",
     "type": "library",
-    "keywords": ["phing"],
+    "keywords": [
+      "phing"
+    ],
     "license": "GPL-2.0+"
 }
