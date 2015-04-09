@@ -12,40 +12,26 @@
 
   <!-- ## Properties -->
 
-  <property name="deploy.local.path"  value="${project.basedir}/docroot" />
-  <property name="deploy.remote.host" value="" />
-  <property name="deploy.remote.path" value="" />
-  <property name="deploy.remote.port" value="" />
-  <property name="deploy.remote.user" value="" />
+  <property name="deploy.drush.options" value="--include-conf --exclude-files" />
+  <property name="deploy.rsync.options" value="--delete --force --exclude-from='.deployignore' --verbose" />
+
+  <property name="drush.bin"    value="${project.basedir}/bin/drush" />
+  <property name="drush.source" value="" />
+  <property name="drush.target" value="" />
 
   <!-- ## Targets -->
 
   <target name="deploy:start"
           description="Deploys the project to remote.">
     <phingcall target="deploy:pre-deploy" />
-    <phingcall target="deploy:sync-files" />
+    <phingcall target="deploy:rsync" />
     <phingcall target="deploy:post-deploy" />
   </target>
 
-  <target name="deploy:sync-files"
+  <target name="deploy:rsync"
           description="Syncs files from local directory to remote server."
           hidden="true">
-    <fail unless="deploy.local.path"
-          message="Please provide a deploy.local.path property." />
-    <fail unless="deploy.remote.host"
-          message="Please provide a deploy.remote.host property." />
-    <fail unless="deploy.remote.port"
-          message="Please provide a deploy.remote.port property." />
-    <fail unless="deploy.remote.path"
-          message="Please provide a deploy.remote.path property." />
-    <fail unless="deploy.remote.user"
-          message="Please provide a deploy.remote.user property." />
-
-    <property name="deploy.sync.options" value="-avz --force --delete --exclude-from '.deployignore' -e 'ssh -p ${deploy.remote.port}'" />
-    <property name="deploy.sync.local"   value="${deploy.local.path}/" />
-    <property name="deploy.sync.remote"  value="${deploy.remote.user}@${deploy.remote.host}:${deploy.remote.path}" />
-
-    <exec command="rsync ${deploy.sync.options} ${deploy.sync.local} ${deploy.sync.remote}"
+    <exec command="${drush.bin} -y rsync ${drush.source} ${drush.target} ${deploy.drush.options} ${deploy.rsync.options}"
           passthru="true"
           logoutput="true"
           checkreturn="true" />
