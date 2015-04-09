@@ -1,16 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="deploy" default="deploy:sync-files">
+<project name="deploy" default="deploy:start">
+
+  <!-- ## Imports -->
+
+  <import file="vendor/jorgegc/phing-drush/build.xml" />
+  <import file="vendor/jorgegc/phing-drush/build.cache.xml" />
+  <import file="vendor/jorgegc/phing-drush/build.database.xml" />
+  <import file="vendor/jorgegc/phing-drush/build.features.xml" />
+  <import file="vendor/jorgegc/phing-drush/build.maintenance.xml" />
 
   <!-- ## Properties -->
 
-  <property name="deploy.local.path"      value="${project.basedir}/docroot" />
-  <property name="deploy.remote.host"     value="" />
-  <property name="deploy.remote.path"     value="" />
-  <property name="deploy.remote.port"     value="" />
-  <property name="deploy.remote.username" value="" />
+  <property name="deploy.local.path"  value="${project.basedir}/docroot" />
+  <property name="deploy.remote.host" value="" />
+  <property name="deploy.remote.path" value="" />
+  <property name="deploy.remote.port" value="" />
+  <property name="deploy.remote.user" value="" />
 
   <!-- ## Targets -->
+
+  <target name="deploy:start"
+          description="Deploys the project to remote.">
+    <phingcall target="deploy:pre-deploy" />
+    <phingcall target="deploy:sync-files" />
+    <phingcall target="deploy:post-deploy" />
+  </target>
 
   <target name="deploy:sync-files"
           description="Syncs files from local directory to remote server."
@@ -23,17 +38,32 @@
           message="Please provide a deploy.remote.port property." />
     <fail unless="deploy.remote.path"
           message="Please provide a deploy.remote.path property." />
-    <fail unless="deploy.remote.username"
-          message="Please provide a deploy.remote.username property." />
+    <fail unless="deploy.remote.user"
+          message="Please provide a deploy.remote.user property." />
 
     <property name="deploy.sync.options" value="-avz --force --delete --exclude-from '.deployignore' -e 'ssh -p ${deploy.remote.port}'" />
     <property name="deploy.sync.local"   value="${deploy.local.path}/" />
-    <property name="deploy.sync.remote"  value="${deploy.remote.username}@${deploy.remote.host}:${deploy.remote.path}" />
+    <property name="deploy.sync.remote"  value="${deploy.remote.user}@${deploy.remote.host}:${deploy.remote.path}" />
 
     <exec command="rsync ${deploy.sync.options} ${deploy.sync.local} ${deploy.sync.remote}"
           passthru="true"
           logoutput="true"
           checkreturn="true" />
+  </target>
+
+  <target name="deploy:pre-deploy"
+          description="Configures the remote before the deployment."
+          hidden="true">
+    <phingcall target="maintenance:on" />
+    <phingcall target="cache:clear" />
+  </target>
+
+  <target name="deploy:post-deploy"
+          description="Configures the remote after the deployment."
+          hidden="true">
+    <phingcall target="features:revert" />
+    <phingcall target="database:update" />
+    <phingcall target="maintenance:off" />
   </target>
 
 </project>

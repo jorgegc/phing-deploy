@@ -3,7 +3,7 @@ Phing Deploy
 
 ## Overview
 
-A collection of targets for deploying websites.
+A collection of targets for deploying Drupal websites.
 
 ## Installation
 
