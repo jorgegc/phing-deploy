@@ -77,7 +77,7 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:jorgegc/phing-drush.git",
-                "reference": "e6d7cff0eccf3c2d575f3f4b4aeeeed0a2315d38"
+                "reference": "537a527bd1ea20ad8e4d4aa9a50db274328ed87b"
             },
             "require": {
                 "drush/drush": "6.*"
@@ -91,7 +91,7 @@
                 "drush",
                 "phing"
             ],
-            "time": "2015-04-06 07:31:55"
+            "time": "2015-04-10 04:46:46"
         }
     ],
     "packages-dev": [],

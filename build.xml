@@ -12,9 +12,6 @@
 
   <!-- ## Properties -->
 
-  <property name="deploy.drush.options" value="--include-conf --exclude-files" />
-  <property name="deploy.rsync.options" value="--delete --force --exclude-from='.deployignore' --verbose" />
-
   <property name="drush.bin"    value="${project.basedir}/bin/drush" />
   <property name="drush.source" value="" />
   <property name="drush.target" value="" />
@@ -31,7 +28,17 @@
   <target name="deploy:rsync"
           description="Syncs files from local directory to remote server."
           hidden="true">
-    <exec command="${drush.bin} -y rsync ${drush.source} ${drush.target} ${deploy.drush.options} ${deploy.rsync.options}"
+    <fail unless="drush.source"
+          message="Please provide a drush.source property." />
+    <fail unless="drush.target"
+          message="Please provide a drush.target property." />
+    <exec command="${drush.bin} -y rsync ${drush.source}:%root ${drush.target}:%root
+                  --mode=avz
+                  --include-conf
+                  --exclude-files
+                  --delete
+                  --force
+                  --exclude-from='.deployignore'"
           passthru="true"
           logoutput="true"
           checkreturn="true" />
