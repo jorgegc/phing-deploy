@@ -28,10 +28,6 @@
   <target name="deploy:rsync"
           description="Syncs files from local directory to remote server."
           hidden="true">
-    <fail unless="drush.source"
-          message="Please provide a drush.source property." />
-    <fail unless="drush.target"
-          message="Please provide a drush.target property." />
     <exec command="${drush.bin} -y rsync ${drush.source}:%root ${drush.target}:%root
                   --mode=avz
                   --include-conf
