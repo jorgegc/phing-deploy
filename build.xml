@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="deploy" default="deploy:start">
+<project name="deploy" default="deploy">
 
   <!-- ## Imports -->
 
@@ -18,8 +18,19 @@
 
   <!-- ## Targets -->
 
-  <target name="deploy:start"
+  <target name="deploy"
           description="Deploys the project to remote.">
+    <fail unless="deploy.environment"
+          message="Please provide a deploy.environment property." />
+    <phingcall target="deploy:start">
+      <property name="drush.source" value="@${phing.project.name}.local" />
+      <property name="drush.target" value="@${phing.project.name}.${deploy.environment}" />
+    </phingcall>
+  </target>
+
+  <target name="deploy:start"
+          description="Starts the deployment."
+          hidden="true">
     <phingcall target="deploy:pre-deploy" />
     <phingcall target="deploy:rsync" />
     <phingcall target="deploy:post-deploy" />
@@ -53,6 +64,7 @@
     <phingcall target="features:revert" />
     <phingcall target="database:update" />
     <phingcall target="maintenance:off" />
+    <phingcall target="cache:clear" />
   </target>
 
 </project>
