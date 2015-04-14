@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "cd86554550c4b9928a1b108226a9048c",
+    "hash": "c36138006d1fec895a35edcf124af916",
     "packages": [
         {
             "name": "drush/drush",
@@ -76,28 +76,38 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "git@github.com:jorgegc/phing-drush.git",
-                "reference": "dc8966d596ff14f876ac6bba1640d791a30d2cfc"
+                "url": "https://github.com/jorgegc/phing-drush.git",
+                "reference": "6891db09df471896293140fced387d0c1bc19dcb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jorgegc/phing-drush/zipball/6891db09df471896293140fced387d0c1bc19dcb",
+                "reference": "6891db09df471896293140fced387d0c1bc19dcb",
+                "shasum": ""
             },
             "require": {
                 "drush/drush": "6.*"
             },
             "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0+"
             ],
             "description": "A collection of Drush targets for Phing.",
+            "homepage": "https://github.com/jorgegc/phing-drush",
             "keywords": [
-                "drush",
+                "Drush",
                 "phing"
             ],
-            "time": "2015-04-12 03:04:31"
+            "time": "2015-04-14 05:17:31"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "jorgegc/phing-drush": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

@@ -1,19 +1,17 @@
 {
     "name": "jorgegc/phing-deploy",
     "description": "A collection of targets for deploying Drupal websites.",
-    "type": "library",
     "keywords": [
         "phing"
     ],
+    "homepage": "https://github.com/jorgegc/phing-deploy",
     "license": "GPL-2.0+",
-    "repositories": [
-        {
-            "type": "git",
-            "url": "git@github.com:jorgegc/phing-drush.git"
-        }
-    ],
+    "support": {
+        "issues": "https://github.com/jorgegc/phing-deploy",
+        "source": "https://github.com/jorgegc/phing-deploy"
+    },
     "require": {
-        "jorgegc/phing-drush": "*"
+        "jorgegc/phing-drush": "dev-master"
     },
     "minimum-stability": "dev",
     "config": {
