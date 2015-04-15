@@ -11,7 +11,7 @@
         "source": "https://github.com/jorgegc/phing-deploy"
     },
     "require": {
-        "jorgegc/phing-drush": "dev-master"
+        "jorgegc/phing-drush": "*"
     },
     "minimum-stability": "dev",
     "config": {
