@@ -47,7 +47,6 @@
                   --force
                   --exclude-from='.deployignore'"
           passthru="true"
-          logoutput="true"
           checkreturn="true" />
   </target>
 
