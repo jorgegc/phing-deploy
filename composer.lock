@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c36138006d1fec895a35edcf124af916",
+    "hash": "46bd4ca7bba3250ab72fff5bea79c72c",
     "packages": [
         {
             "name": "drush/drush",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/drush-ops/drush.git",
-                "reference": "b5443b13147339eba12dda856512b5356c9bd37f"
+                "reference": "187fd31ab2985ef4bc8d45b2bb770036331a3078"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/drush-ops/drush/zipball/b5443b13147339eba12dda856512b5356c9bd37f",
-                "reference": "b5443b13147339eba12dda856512b5356c9bd37f",
+                "url": "https://api.github.com/repos/drush-ops/drush/zipball/187fd31ab2985ef4bc8d45b2bb770036331a3078",
+                "reference": "187fd31ab2985ef4bc8d45b2bb770036331a3078",
                 "shasum": ""
             },
             "require": {
@@ -69,7 +69,7 @@
             ],
             "description": "Drush is a command line shell and scripting interface for Drupal, a veritable Swiss Army knife designed to make life easier for those of us who spend some of our working hours hacking away at the command prompt.",
             "homepage": "http://www.drush.org",
-            "time": "2015-03-27 03:54:22"
+            "time": "2015-04-28 21:34:37"
         },
         {
             "name": "jorgegc/phing-drush",
@@ -77,12 +77,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/jorgegc/phing-drush.git",
-                "reference": "6891db09df471896293140fced387d0c1bc19dcb"
+                "reference": "053e2154465801b68363d46203f9dc3d97f9e694"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jorgegc/phing-drush/zipball/6891db09df471896293140fced387d0c1bc19dcb",
-                "reference": "6891db09df471896293140fced387d0c1bc19dcb",
+                "url": "https://api.github.com/repos/jorgegc/phing-drush/zipball/053e2154465801b68363d46203f9dc3d97f9e694",
+                "reference": "053e2154465801b68363d46203f9dc3d97f9e694",
                 "shasum": ""
             },
             "require": {
@@ -99,15 +99,13 @@
                 "Drush",
                 "phing"
             ],
-            "time": "2015-04-14 05:17:31"
+            "time": "2015-05-18 05:25:13"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "jorgegc/phing-drush": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
