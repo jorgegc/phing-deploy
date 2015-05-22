@@ -13,7 +13,6 @@
     "require": {
         "jorgegc/phing-drush": "*"
     },
-    "minimum-stability": "dev",
     "config": {
         "bin-dir": "bin/"
     }
