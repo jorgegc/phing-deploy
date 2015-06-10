@@ -12,6 +12,8 @@
 
   <!-- ## Properties -->
 
+  <property name="deploy.ignore.file" value="${project.basedir}/.deployignore" />
+
   <property name="drush.bin"    value="${project.basedir}/bin/drush" />
   <property name="drush.source" value="" />
   <property name="drush.target" value="" />
@@ -45,7 +47,7 @@
                   --exclude-files
                   --delete
                   --force
-                  --exclude-from='.deployignore'"
+                  --exclude-from='${deploy.ignore.file}'"
           passthru="true"
           checkreturn="true" />
   </target>
