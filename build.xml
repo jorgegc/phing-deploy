@@ -55,17 +55,17 @@
   <target name="deploy:pre-deploy"
           description="Configures the remote before the deployment."
           hidden="true">
-    <phingcall target="maintenance:on" />
-    <phingcall target="cache:clear" />
+    <phingcall target="drush-maintenance:on" />
+    <phingcall target="drush-cache:clear" />
   </target>
 
   <target name="deploy:post-deploy"
           description="Configures the remote after the deployment."
           hidden="true">
-    <phingcall target="features:revert" />
-    <phingcall target="database:update" />
-    <phingcall target="maintenance:off" />
-    <phingcall target="cache:clear" />
+    <phingcall target="drush-features:revert" />
+    <phingcall target="drush-database:update" />
+    <phingcall target="drush-maintenance:off" />
+    <phingcall target="drush-cache:clear" />
   </target>
 
 </project>
